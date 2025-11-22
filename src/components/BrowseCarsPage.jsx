@@ -93,7 +93,7 @@ const BrowseCarsPage = () => {
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-black via-gray-900 to-black overflow-hidden">
 
-      {/* Floating Orbs */}
+      {/* Floating Orb */}
 
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
         <div className="absolute w-[400px] h-[400px] rounded-full bg-gradient-to-br from-yellow-400 to-pink-500 blur-3xl opacity-20 -top-52 -left-24 animate-[float_25s_ease-in-out_infinite]"></div>
