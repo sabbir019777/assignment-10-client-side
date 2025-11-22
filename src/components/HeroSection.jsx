@@ -30,7 +30,7 @@ const HeroSection = () => {
   <div className="absolute inset-0 bg-black/60"></div>
     </div>
 
-      {/* Floating Particles */}
+      {/* Floating  */}
 
   <div className="hidden sm:block absolute top-0 left-0 w-full h-full pointer-events-none">
    <div className="absolute w-2 h-2 bg-amber-400 rounded-full animate-ping opacity-30 top-10 left-20"></div>
