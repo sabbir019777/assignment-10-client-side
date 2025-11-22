@@ -133,7 +133,7 @@ const FeaturesSection = () => {
   );
 };
 
-// Inline styles
+// Inline style
 
 const styles = {
   section: {
