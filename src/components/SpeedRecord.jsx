@@ -49,7 +49,7 @@ const SpeedRecord = ({ user }) => {
           exit={{ opacity: 0 }}
           transition={{ duration: 1.2 }}
         >
-          {/* Video */}
+          {/* Vdo */}
 
    <motion.video
      key={videos[currentSlide].url}
