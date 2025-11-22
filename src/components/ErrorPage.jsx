@@ -7,7 +7,7 @@ const ErrorPage = () => {
   return (
     <div className="relative w-full h-screen overflow-hidden">
 
-      {/* Background Video */}
+      {/* Bg Video */}
 
   <video
         autoPlay
