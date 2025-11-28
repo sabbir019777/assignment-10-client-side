@@ -121,7 +121,7 @@ const Testimonials = () => {
         </p>
       </div>
 
-      {/* Heart Badge */}
+
 
       <div className="absolute bottom-4 right-4 w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-pink-500 flex items-center justify-center shadow-lg">
         <FaHeart className="text-black w-4 h-4" />
