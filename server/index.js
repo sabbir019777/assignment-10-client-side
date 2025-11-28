@@ -2,29 +2,34 @@ const express = require("express");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const cors = require("cors");
 require("dotenv").config();
+
 const admin = require("firebase-admin");
 const serviceAccount = require("./plantKey.json");
 
 const app = express();
+
+// ✅ Vercel auto-assigned port
+const port = process.env.PORT || 3000;
 
 // Firebase Admin
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
-// Middlewares
+// ✅ CORS: Localhost + Netlify frontend
 app.use(
   cors({
     origin: [
-      "http://localhost:5173",
-      "https://car-rental-plantform.netlify.app",
+      "http://localhost:5173", // local dev
+      "https://your-frontend.netlify.app", // Netlify frontend URL
     ],
     credentials: true,
   })
 );
+
 app.use(express.json());
 
-// MongoDB
+// MongoDB URI
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.5u4x9tc.mongodb.net/?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, {
@@ -35,34 +40,38 @@ const client = new MongoClient(uri, {
   },
 });
 
-// Token Verify
+// Token Verification Middleware
 async function verifyToken(req, res, next) {
   try {
     const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith("Bearer ")) {
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({ message: "Unauthorized: No token provided" });
     }
-
     const idToken = authHeader.split(" ")[1];
     const decodedToken = await admin.auth().verifyIdToken(idToken);
-
-    req.user = { uid: decodedToken.uid, email: decodedToken.email };
+    req.user = {
+      uid: decodedToken.uid,
+      email: decodedToken.email,
+    };
     next();
   } catch (error) {
+    console.error("Token verification failed:", error);
     res.status(401).json({ message: "Unauthorized: Invalid token" });
   }
 }
 
+// Server main function
 async function run() {
   try {
+    // await client.connect();
+    console.log("✅ MongoDB Connected Successfully!");
+
     const db = client.db("car");
     const carsCollection = db.collection("car-plant");
     const bookingsCollection = db.collection("bookings");
 
     // Root
-    app.get("/", (req, res) =>
-      res.send("Car Rental Server Running Successfully!")
-    );
+    app.get("/", (req, res) => res.send("Car Rental Server Running Successfully!"));
 
     // Top Cars
     app.get("/api/cars/top-rated", async (req, res) => {
@@ -70,93 +79,69 @@ async function run() {
       res.json(cars);
     });
 
-    // Browse cars
+    // Browse Cars
     app.get("/api/cars/top-browse", async (req, res) => {
       const cars = await carsCollection.find({}).limit(27).toArray();
       res.json(cars);
     });
 
-    // My listings
+    // My Listings
     app.get("/api/car/my-listings", verifyToken, async (req, res) => {
-      const cars = await carsCollection
-        .find({ providerEmail: req.user.email })
-        .toArray();
+      const email = req.user.email;
+      const cars = await carsCollection.find({ providerEmail: email }).toArray();
       res.json(cars);
     });
 
-    // Add car
+    // Add Car
     app.post("/api/cars", verifyToken, async (req, res) => {
       const car = req.body;
       car.providerEmail = req.user.email;
       car.status = "available";
-
       const result = await carsCollection.insertOne(car);
-      res.status(201).json({
-        message: "Car added successfully",
-        id: result.insertedId,
-      });
+      res.status(201).json({ message: "Car added successfully!", id: result.insertedId });
     });
 
-    // Single car
+    // Single Car
     app.get("/api/cars/:id", async (req, res) => {
-      const car = await carsCollection.findOne({
-        _id: new ObjectId(req.params.id),
-      });
+      const car = await carsCollection.findOne({ _id: new ObjectId(req.params.id) });
       if (!car) return res.status(404).json({ message: "Car not found" });
       res.json(car);
     });
 
-    // Update car
+    // Update Car
     app.put("/api/cars/:id", verifyToken, async (req, res) => {
       const carId = req.params.id;
       const email = req.user.email;
-
       const car = await carsCollection.findOne({ _id: new ObjectId(carId) });
       if (!car) return res.status(404).json({ message: "Car not found" });
-
       if (car.providerEmail !== email) {
-        return res.status(403).json({
-          message: "You are not authorized to update this car",
-        });
+        return res.status(403).json({ message: "You are not authorized to update this car" });
       }
-
-      await carsCollection.updateOne(
-        { _id: new ObjectId(carId) },
-        { $set: req.body }
-      );
-
-      const updated = await carsCollection.findOne({
-        _id: new ObjectId(carId),
-      });
-
-      res.json({ message: "Car updated successfully", car: updated });
+      const updatedCar = req.body;
+      await carsCollection.updateOne({ _id: new ObjectId(carId) }, { $set: updatedCar });
+      const refreshedCar = await carsCollection.findOne({ _id: new ObjectId(carId) });
+      res.json({ message: "Car updated successfully", car: refreshedCar });
     });
 
-    // Delete car
+    // Delete Car
     app.delete("/api/cars/:id", verifyToken, async (req, res) => {
       const carId = req.params.id;
-
+      const email = req.user.email;
       const car = await carsCollection.findOne({ _id: new ObjectId(carId) });
       if (!car) return res.status(404).json({ message: "Car not found" });
-
-      if (car.providerEmail !== req.user.email) {
-        return res.status(403).json({
-          message: "You are not authorized to delete this car",
-        });
+      if (car.providerEmail !== email) {
+        return res.status(403).json({ message: "You are not authorized to delete this car" });
       }
-
       await carsCollection.deleteOne({ _id: new ObjectId(carId) });
       res.json({ message: "Car deleted successfully" });
     });
 
-    // Book car
+    // Book a Car
     app.post("/api/cars/:id/book", verifyToken, async (req, res) => {
       const carId = req.params.id;
-
       const car = await carsCollection.findOne({ _id: new ObjectId(carId) });
       if (!car) return res.status(404).json({ message: "Car not found" });
-      if (car.status === "booked")
-        return res.status(400).json({ message: "Car already booked" });
+      if (car.status === "booked") return res.status(400).json({ message: "Car already booked" });
 
       await bookingsCollection.insertOne({
         carId: car._id,
@@ -173,22 +158,20 @@ async function run() {
       res.json({ message: "Car booked successfully!" });
     });
 
-    // Search
+    // Search Cars
     app.get("/api/cars/search", async (req, res) => {
       const q = req.query.q || "";
-      const cars = await carsCollection
-        .find({ name: { $regex: q, $options: "i" } })
-        .toArray();
+      const cars = await carsCollection.find({ name: { $regex: q, $options: "i" } }).toArray();
       res.json(cars);
     });
 
-    console.log("Server setup complete ✔");
-  } catch (err) {
-    console.error("Error:", err);
+    console.log("✅ Server setup complete");
+  } catch (error) {
+    console.error("Server Error:", error);
   }
 }
 
-run();
+run().catch(console.error);
 
-// ❗ NO app.listen() for Vercel
-module.exports = app;
+// Listen
+app.listen(port, () => console.log(`✅ Server running on port ${port}`));
