@@ -40,7 +40,7 @@ const FeaturesSection = () => {
     };
     document.addEventListener('mousemove', handleMouseMove);
 
-    // 2. Marquee Hover Pause Effect
+
 
     const currentMarquee = marqueeRef.current;
     if (currentMarquee) {

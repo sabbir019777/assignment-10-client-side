@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { getAuth } from "firebase/auth";
 import { endpoint } from "../api";
+import { useNavigate } from "react-router-dom"; 
+import { toast } from "react-hot-toast"; 
 
 const AddCarPage = ({ onNewCarAdded }) => {
   const [formData, setFormData] = useState({
@@ -16,6 +18,7 @@ const AddCarPage = ({ onNewCarAdded }) => {
   const [toasts, setToasts] = useState([]);
 
   const auth = getAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -34,7 +37,7 @@ const AddCarPage = ({ onNewCarAdded }) => {
     setLoading(true);
 
     try {
-      // Validate required field
+
 
       if (
         !formData.carName ||
@@ -49,6 +52,7 @@ const AddCarPage = ({ onNewCarAdded }) => {
       }
 
       //  Firebase user
+
       const currentUser = auth.currentUser;
       if (!currentUser) {
         showToast("User not logged in. Please login first!", "error");
@@ -57,6 +61,7 @@ const AddCarPage = ({ onNewCarAdded }) => {
       }
 
       // Firebase token
+
       const accessToken = await currentUser.getIdToken();
 
       const response = await fetch(endpoint("/api/cars"), {
@@ -79,9 +84,10 @@ const AddCarPage = ({ onNewCarAdded }) => {
       if (!response.ok) throw new Error("Failed to add car");
 
       const result = await response.json();
-      showToast(
-        "Car successfully listed! Your vehicle is now available on RentWheels.",
-        "success"
+
+   
+      toast.success(
+        "Car successfully listed! Your vehicle is now available on RentWheels."
       );
 
       setFormData({
@@ -94,6 +100,10 @@ const AddCarPage = ({ onNewCarAdded }) => {
       });
 
       if (typeof onNewCarAdded === "function") onNewCarAdded(result.id);
+
+      // Redirect to My Listings page in Dashboard
+
+      navigate("/dashboard/my-listings");
     } catch (err) {
       console.error(err);
       showToast("Failed to list car. Try again.", "error");
@@ -103,22 +113,23 @@ const AddCarPage = ({ onNewCarAdded }) => {
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-gray-900 to-black overflow-x-hidden">
+    <div className="relative min-h-screen bg-linear-to-br from-gray-900 to-black overflow-x-hidden">
       <div className="absolute inset-0 overflow-hidden -z-10">
-        <div className="absolute w-[400px] h-[400px] bg-gradient-to-br from-yellow-400 to-pink-500 rounded-full blur-[80px] top-[-200px] left-[-100px] animate-float"></div>
-        <div className="absolute w-[500px] h-[500px] bg-gradient-to-br from-pink-500 to-pink-700 rounded-full blur-[80px] bottom-[-250px] right-[-200px] animate-float animation-delay-5000"></div>
+        <div className="absolute w-[400px] h-[400px] bg-linear-to-br from-yellow-400 to-pink-500 rounded-full blur-[80px] top-[-200px] left-[-100px] animate-float"></div>
+        <div className="absolute w-[500px] h-[500px] bg-linear-to-br from-pink-500 to-pink-700 rounded-full blur-[80px] bottom-[-250px] right-[-200px] animate-float animation-delay-5000"></div>
       </div>
 
       {/* Content section */}
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 py-20">
+        
         {/* Header */}
 
         <div className="text-center mb-20 animate-fadeInUp">
-          <h1 className="font-playfair text-4xl sm:text-5xl md:text-6xl font-bold uppercase bg-gradient-to-r from-yellow-400 via-pink-500 to-pink-700 bg-clip-text text-transparent tracking-wide mb-5">
+          <h1 className="font-playfair text-4xl sm:text-5xl md:text-6xl font-bold uppercase bg-linear-to-r from-yellow-400 via-pink-500 to-pink-700 bg-clip-text text-transparent tracking-wide mb-5">
             List a New Rental Vehicles
           </h1>
-          <div className="w-20 h-1 bg-gradient-to-r from-yellow-400 to-pink-500 mx-auto rounded mb-5"></div>
+          <div className="w-20 h-1 bg-linear-to-r from-yellow-400 to-pink-500 mx-auto rounded mb-5"></div>
           <p className="text-gray-400 text-lg max-w-xl mx-auto">
             {" "}
             Maximize your earnings by sharing your vehicle with the RentWheels
@@ -289,7 +300,7 @@ const AddCarPage = ({ onNewCarAdded }) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full p-5 bg-gradient-to-br from-yellow-400 to-pink-500 text-black font-bold rounded-lg flex justify-center items-center gap-3 shadow-lg hover:shadow-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full p-5 bg-linear-to-br from-yellow-400 to-pink-500 text-black font-bold rounded-lg flex justify-center items-center gap-3 shadow-lg hover:shadow-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <div className="w-5 h-5 border-4 border-black border-t-transparent rounded-full animate-spin"></div>

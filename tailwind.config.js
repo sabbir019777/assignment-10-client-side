@@ -4,7 +4,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-  darkMode: 'class', // ✅ Tailwind এ dark mode 'class' দ্বারা control হবে
+  darkMode: 'class', 
   theme: {
     extend: {
       fontFamily: {

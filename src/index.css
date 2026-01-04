@@ -1,3 +1,49 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+:root {
+  --app-bg: #ffffff;
+  --app-text: #0f172a;
+  --app-muted: #6b7280;
+  --app-card: #f8fafc;
+}
+
+html.light {
+  --app-bg: #ffffff;
+  --app-text: #0f172a;
+  --app-muted: #6b7280;
+  --app-card: #f8fafc;
+}
+
+html.dark {
+  --app-bg: #0b1220;
+  --app-text: #e6eef8;
+  --app-muted: #9aa4b2;
+  --app-card: #071023;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background-color: var(--app-bg);
+  color: var(--app-text);
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+
+.dark .bg-white {
+  background-color: var(--app-card) !important;
+}
+.dark .text-slate-900 {
+  color: var(--app-text) !important;
+}
+.dark .bg-slate-50 {
+  background-color: var(--app-card) !important;
+}
+.dark .bg-gray-50 {
+  background-color: var(--app-card) !important;
+}

@@ -1,144 +1,179 @@
-
 import React from "react";
+import { Link } from "react-router-dom";
 import {
-   FaFacebookF,
+  FaFacebookF,
   FaInstagram,
   FaLinkedinIn,
   FaYoutube,
-   FaCar,
+  FaCar,
   FaMapMarkerAlt,
-   FaPhone,
-   FaEnvelope,
+  FaPhone,
+  FaEnvelope,
   FaCreditCard,
   FaShieldAlt,
 } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6"; 
+import { FaXTwitter } from "react-icons/fa6";
 
 const Footer = () => {
   const handleSubscribe = (e) => {
     e.preventDefault();
     const successMessage = document.getElementById("successMessage");
-    e.target.email.value = "";
-    successMessage.classList.remove("hidden");
-    successMessage.classList.add("flex");
-    setTimeout(() => {
-      successMessage.classList.add("hidden");
-      successMessage.classList.remove("flex");
-    }, 3000);
+    const emailValue = e.target.email.value;
+    
+    if(emailValue) {
+        e.target.email.value = "";
+        successMessage.classList.remove("hidden");
+        successMessage.classList.add("flex");
+        setTimeout(() => {
+          successMessage.classList.add("hidden");
+          successMessage.classList.remove("flex");
+        }, 3000);
+    }
+  };
+
+  const footerLinks = {
+    services: [
+      { name: "Home", path: "/" },
+      { name: "Browse Cars", path: "/browse-cars" },
+      { name: "About Section", path: "/about" },
+      { name: "Electric Rides", path: "/browse-cars" },
+    ],
+   
+    explore: [
+      { name: "About Our Story", path: "/about" },
+      { name: "Contact Support", path: "/contact" },
+      { name: "Common FAQs", path: "/faq" },
+      { name: "Privacy & Terms", path: "/terms" },
+    ]
   };
 
   return (
-    <footer className="relative bg-gradient-to-br from-[#111] to-[#000] overflow-hidden py-16 text-white">
-
-      {/*  Background Orb */}
-
-      <div className="absolute top-0 left-0 w-full h-full -z-10 overflow-hidden">
-        <div className="absolute w-[300px] h-[300px] rounded-full bg-gradient-to-br from-[#FFD700] to-[#FF69B4] top-[-100px] left-[-100px] opacity-20 blur-[100px]"></div>
-        <div className="absolute w-[350px] h-[350px] rounded-full bg-gradient-to-br from-[#FF69B4] to-[#FF1493] bottom-[-150px] right-[-150px] opacity-20 blur-[100px]"></div>
+    <footer className="relative bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 transition-colors duration-300 py-16 overflow-hidden mt-20">
+      
+      {/* Background Decorative Orbs */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute w-[300px] h-[300px] rounded-full bg-amber-500/10 -top-24 -left-24 blur-[100px]"></div>
+        <div className="absolute w-[300px] h-[300px] rounded-full bg-pink-500/10 -bottom-24 -right-24 blur-[100px]"></div>
       </div>
 
-      {/* Footer  */}
+      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
 
-      <div className="max-w-7xl mx-auto px-6 md:px-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
-
-          {/* Company Column */}
-
-          <div className="lg:col-span-1">
-            <div className="flex items-center mb-5">
-         <div className="w-14 h-14 bg-gradient-to-br from-[#FFD700] to-[#FF69B4] rounded-lg flex items-center justify-center shadow-lg mr-4">
-                <FaCar className="text-black text-2xl" />
-        </div>
- <h2 className="text-2xl font-bold bg-gradient-to-r from-[#FFD700] to-[#FF69B4] bg-clip-text text-transparent font-serif">  RentWheels </h2>
-      </div>
-   <p className="text-gray-300 text-sm mb-6">
-  Experience luxury like never before with our premium car rental services. Drive your dreams with style and sophistication.  </p>
-     <div className="flex gap-3">
-      <a href="#" className="w-9 h-9 rounded-full bg-[rgba(30,30,30,0.7)] flex items-center justify-center text-gray-400 hover:text-[#3b5998] transition-all"><FaFacebookF /></a>
-
-     <a href="#" className="w-9 h-9 rounded-full bg-[rgba(30,30,30,0.7)] flex items-center justify-center text-gray-400 hover:text-gray-700 transition-all"><FaXTwitter /></a>
-
-    <a href="#" className="w-9 h-9 rounded-full bg-[rgba(30,30,30,0.7)] flex items-center justify-center text-gray-400 hover:text-[#E1306C] transition-all"><FaInstagram /></a>
-
-    <a href="#" className="w-9 h-9 rounded-full bg-[rgba(30,30,30,0.7)] flex items-center justify-center text-gray-400 hover:text-[#0077b5] transition-all"><FaLinkedinIn /></a>
-
-    <a href="#" className="w-9 h-9 rounded-full bg-[rgba(30,30,30,0.7)] flex items-center justify-center text-gray-400 hover:text-[#FF0000] transition-all"><FaYoutube /></a>
-
+          {/* Company Identity */}
+          <div className="space-y-6">
+            <Link to="/" className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/30">
+                <FaCar className="text-slate-900 text-2xl" />
+              </div>
+              <span className="text-2xl font-black tracking-tighter dark:text-white text-slate-900 uppercase">
+                Rent<span className="text-amber-500">Wheels</span>
+              </span>
+            </Link>
+            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+              Experience the pinnacle of luxury travel. Drive your dream vehicle with 
+              unmatched comfort and professional support.
+            </p>
+            <div className="flex gap-4">
+              {[
+                { Icon: FaFacebookF, color: "hover:text-blue-600", url: "https://facebook.com" },
+                { Icon: FaXTwitter, color: "hover:text-gray-400", url: "https://twitter.com" },
+                { Icon: FaInstagram, color: "hover:text-pink-500", url: "https://instagram.com" },
+                { Icon: FaLinkedinIn, color: "hover:text-blue-700", url: "https://linkedin.com" },
+              ].map((social, i) => (
+                <a 
+                  key={i} 
+                  href={social.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className={`w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-500 ${social.color} transition-all duration-300 border border-transparent hover:border-amber-500/50`}
+                >
+                  <social.Icon />
+                </a>
+              ))}
             </div>
           </div>
 
-          {/* Services */}
-
+          {/* Navigation Links */}
           <div>
-    <h3 className="text-[#FFD700] font-semibold text-lg mb-3 relative pb-1 after:absolute after:bottom-0 after:left-0 after:w-10 after:h-[2px] after:bg-gradient-to-r after:from-[#FFD700] after:to-[#FF69B4]">  Our Services </h3>
-    <ul className="space-y-2 text-sm text-gray-400">
-    {["Luxury Cars", "Sports Cars", "SUVs", "Exotic Cars", "Classic Cars"].map((item, i) => (
-         <li key={i}>
-       <a href="#" className="hover:text-[#FFD700] transition">{item}</a>
-          </li>
-        ))}
+            <h3 className="text-slate-900 dark:text-white font-black uppercase tracking-widest text-sm mb-6 border-l-4 border-amber-500 pl-3">
+              Our Services
+            </h3>
+            <ul className="space-y-3 text-sm">
+              {footerLinks.services.map((item, i) => (
+                <li key={i}>
+                  <Link to={item.path} className="text-slate-600 dark:text-slate-400 hover:text-amber-500 transition-colors">
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Support */}
-
-     <div>
-   <h3 className="text-[#FFD700] font-semibold text-lg mb-3 relative pb-1 after:absolute after:bottom-0 after:left-0 after:w-10 after:h-[2px] after:bg-gradient-to-r after:from-[#FFD700] after:to-[#FF69B4]">  Support </h3>
-    <ul className="space-y-2 text-sm text-gray-400">
-    {["Help Center", "Contact Us", "FAQ", "Terms of Service", "Privacy Policy"].map((item, i) => (
-      <li key={i}>
-       <a href="#" className="hover:text-[#FFD700] transition">{item}</a>
-      </li>
-       ))}
-      </ul>
+          {/* Quick Explore - Updated with 4 New Pages */}
+          <div>
+            <h3 className="text-slate-900 dark:text-white font-black uppercase tracking-widest text-sm mb-6 border-l-4 border-amber-500 pl-3">
+              Quick Explore
+            </h3>
+            <ul className="space-y-3 text-sm">
+              {footerLinks.explore.map((item, i) => (
+                <li key={i}>
+                  <Link to={item.path} className="text-slate-600 dark:text-slate-400 hover:text-amber-500 transition-colors">
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {/* Newsletter */}
-
-    <div>
-   <h3 className="text-[#FFD700] font-semibold text-lg mb-3 relative pb-1 after:absolute after:bottom-0 after:left-0 after:w-10 after:h-[2px] after:bg-gradient-to-r after:from-[#FFD700] after:to-[#FF69B4]"> Stay Updated </h3>
-   <p className="text-gray-400 text-sm mb-3">Subscribe for exclusive offers & updates.</p>
-    <form className="flex" onSubmit={handleSubscribe}>
-      <input
-       type="email"
-        name="email"
- placeholder="Your email"
-      required
-        className="flex-1 px-4 py-2 rounded-l-full bg-[rgba(30,30,30,0.7)] text-white text-sm focus:outline-none"
-     />
-         <button
-      type="submit"
-      className="px-4 py-2 rounded-r-full bg-gradient-to-br from-[#FFD700] to-[#FF69B4] text-black text-sm font-semibold"
-      >  Subscribe </button>
-   </form>
-    <div id="successMessage" className="hidden mt-3 p-2 rounded bg-green-100 border border-green-300 text-green-600 text-sm items-center">
-    <FaShieldAlt className="mr-2" /> Thanks for subscribing!!  </div>
+          {/* Newsletter Section */}
+          <div>
+            <h3 className="text-slate-900 dark:text-white font-black uppercase tracking-widest text-sm mb-6 border-l-4 border-amber-500 pl-3">
+              Stay Updated
+            </h3>
+            <p className="text-slate-600 dark:text-slate-400 text-sm mb-4">
+              Subscribe for exclusive luxury offers.
+            </p>
+            <form className="flex flex-col gap-3" onSubmit={handleSubscribe}>
+              <div className="flex bg-slate-200 dark:bg-slate-800 rounded-2xl p-1 border border-transparent focus-within:border-amber-500/50 transition-all">
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Your email"
+                  required
+                  className="bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white px-4 py-2 w-full text-sm"
+                />
+                <button
+                  type="submit"
+                  className="bg-amber-500 text-slate-900 px-4 py-2 rounded-xl font-bold text-sm shadow-lg hover:bg-amber-400 transition-colors"
+                >
+                  Join
+                </button>
+              </div>
+            </form>
+            <div id="successMessage" className="hidden mt-3 p-3 rounded-xl bg-green-500/10 border border-green-500/20 text-green-500 text-xs items-center">
+              <FaShieldAlt className="mr-2" /> Subscription successful!
+            </div>
           </div>
         </div>
 
-        {/* Bottom Section*/}
-
- <div className="border-t border-[rgba(255,255,255,0.1)] pt-6 text-sm">
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-gray-400">
-      <div className="flex flex-wrap justify-center gap-4">
-       <div className="flex items-center"><FaMapMarkerAlt className="text-[#FFD700] mr-2" />123 Luxury Avenue</div>
-
-       <div className="flex items-center"><FaPhone className="text-[#FFD700] mr-2" />+1 (555) 123-4567</div>
-
-     <div className="flex items-center"><FaEnvelope className="text-[#FFD700] mr-2" />contact@rentwheels.com</div>
-
-    </div>
-
-   <div className="flex flex-wrap justify-center gap-4">
-      <div className="flex items-center"><FaCreditCard className="text-[#FFD700] mr-2" />Secure Payments</div>
-       <div className="flex items-center"><FaShieldAlt className="text-[#FFD700] mr-2" />Trusted Service</div>
-   </div>
+        {/* Contact Info Row */}
+        <div className="pt-8 border-t border-slate-200 dark:border-slate-800">
+          <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
+            <div className="flex flex-wrap justify-center gap-6 text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <span className="flex items-center gap-2"><FaMapMarkerAlt className="text-amber-500" /> 123 Luxury Ave, CA</span>
+              <span className="flex items-center gap-2"><FaPhone className="text-amber-500" /> +1 800 WHEELS</span>
+              <span className="flex items-center gap-2"><FaEnvelope className="text-amber-500" /> hi@rentwheels.com</span>
+            </div>
+            <div className="flex gap-6 text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <span className="flex items-center gap-2"><FaCreditCard className="text-amber-500" /> Secure Checkout</span>
+              <span className="flex items-center gap-2"><FaShieldAlt className="text-amber-500" /> Verified Trust</span>
+            </div>
+          </div>
+          <p className="text-center text-slate-400 dark:text-slate-600 mt-10 text-[10px] font-bold uppercase tracking-[4px]">
+            © 2026 RentWheels. Redefining Motion.
+          </p>
+        </div>
       </div>
-      <p className="text-center text-gray-500 mt-6 text-xs">
-            © 2025 RentWheels. All rights reserved.
-    </p>
-      </div>
-  </div>
     </footer>
   );
 };

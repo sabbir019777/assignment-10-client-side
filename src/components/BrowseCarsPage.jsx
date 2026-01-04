@@ -1,20 +1,39 @@
 import React, { useState, useEffect } from "react";
-import { FaSearch, FaUser, FaMapMarkerAlt } from "react-icons/fa";
+import {
+  FaSearch,
+  FaStar,
+  FaMapMarkerAlt,
+  FaRegCalendarAlt,
+  FaSortAmountDown,
+} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { endpoint } from "../api";
+import { motion, AnimatePresence } from "framer-motion";
 
 const API_URL = endpoint("/api/cars/top-browse");
+
+
+const SkeletonCard = () => (
+  <div className="bg-gray-800/50 border border-gray-700 rounded-[30px] p-4 animate-pulse h-[350px]">
+    <div className="bg-gray-700 h-32 rounded-2xl mb-4"></div>
+    <div className="h-5 bg-gray-700 rounded w-3/4 mb-2"></div>
+    <div className="h-3 bg-gray-700 rounded w-full mb-4"></div>
+    <div className="flex justify-between items-center mt-auto">
+      <div className="h-5 bg-gray-700 rounded w-16"></div>
+      <div className="h-9 bg-gray-700 rounded-xl w-24"></div>
+    </div>
+  </div>
+);
 
 const BrowseCarsPage = () => {
   const navigate = useNavigate();
   const [cars, setCars] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("All");
+  const [sortOption, setSortOption] = useState("newest");
   const [loading, setLoading] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Fetch cars from backend
   useEffect(() => {
     const fetchCars = async () => {
       setLoading(true);
@@ -25,54 +44,41 @@ const BrowseCarsPage = () => {
           name: car.name || "Unnamed Car",
           model: car.model || "Unknown Model",
           price: car.price || 0,
-          imageUrl:
-            car.imageUrl && car.imageUrl.trim() !== ""
-              ? car.imageUrl
-              : "https://via.placeholder.com/400x250?text=No+Image",
+          imageUrl: car.imageUrl || "https://via.placeholder.com/400x250",
           category: car.category || "Uncategorized",
-          providerName: car.providerName || "Unknown Provider",
-          location: car.location || "Unknown",
+          location: car.location || "USA",
+          rating: car.rating || "4.8",
+          status: car.status || "Available",
+          dateValue: car.createdAt ? new Date(car.createdAt) : new Date(),
+          date: car.createdAt
+            ? new Date(car.createdAt).toLocaleDateString()
+            : "Jan 2026",
         }));
         setCars(processedCars);
       } catch (err) {
-        console.error("❌ Failed to fetch browse car data:", err);
-        alert("API Error: " + err.message);
+        console.error("❌ API Error:", err);
       } finally {
         setLoading(false);
       }
     };
-
-    const checkLogin = () => {
-      const user = localStorage.getItem("userLoggedIn") === "true";
-      setIsLoggedIn(user);
-    };
-
-    checkLogin();
     fetchCars();
-    window.addEventListener("storage", checkLogin);
-    return () => window.removeEventListener("storage", checkLogin);
   }, []);
 
-  // Filter cars
-  const filteredCars = cars.filter(
-    (car) =>
-      car.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (category === "All" || car.category === category)
-  );
+  const filteredAndSortedCars = cars
+    .filter((car) => {
+      const matchesSearch = car.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesCategory = category === "All" || car.category === category;
+      return matchesSearch && matchesCategory;
+    })
+    .sort((a, b) => {
+      if (sortOption === "priceLow") return a.price - b.price;
+      if (sortOption === "priceHigh") return b.price - a.price;
+      if (sortOption === "newest") return b.dateValue - a.dateValue;
+      return 0;
+    });
 
-  // Apply Filters
-  const applyFilters = () => {
-    setLoading(true);
-    setTimeout(() => setLoading(false), 500);
-  };
-
-  // Clear Filters
-  const clearFilters = () => {
-    setSearchTerm("");
-    setCategory("All");
-  };
-
-  // View Details
   const viewDetails = (car) => {
     const user = localStorage.getItem("userLoggedIn") === "true";
     if (!user) {
@@ -83,148 +89,125 @@ const BrowseCarsPage = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-black via-gray-900 to-black overflow-hidden">
-      {/* Floating Orbs */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-        <div className="absolute w-[400px] h-[400px] rounded-full bg-gradient-to-br from-yellow-400 to-pink-500 blur-3xl opacity-20 -top-52 -left-24 animate-[float_25s_ease-in-out_infinite]"></div>
-        <div className="absolute w-[500px] h-[500px] rounded-full bg-gradient-to-br from-pink-500 to-pink-700 blur-3xl opacity-20 -bottom-60 -right-48 animate-[float_25s_ease-in-out_infinite_5s]"></div>
-      </div>
-
-      <div className="relative z-10 max-w-[1400px] mx-auto px-5 py-20">
-        {/* Header */}
-        <div className="text-center mb-20 animate-fadeInUp">
-          <h1 className="font-playfair text-5xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-pink-500 to-pink-700 uppercase tracking-wider">
+    <div className="relative min-h-screen bg-[#05070a] text-white overflow-hidden pb-20">
+      <div className="relative z-10 max-w-[1600px] mx-auto px-6 py-24">
+        <div className="text-center mb-16">
+          <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-transparent bg-clip-text bg-linear-to-r from-yellow-400 via-pink-500 to-pink-700">
             Browse Our Fleet
           </h1>
-          <div className="w-20 h-1 bg-gradient-to-r from-yellow-400 to-pink-500 mx-auto rounded mt-5 mb-5"></div>
-          <p className="text-gray-300 max-w-xl mx-auto">
-            Discover the perfect ride for your next journey from our premium
-            rental vehicles.
-          </p>
+          <div className="w-20 h-1.5 bg-amber-500 mx-auto rounded-full mt-4"></div>
         </div>
 
-        {/* Search & Filters */}
-        <div className="max-w-3xl mx-auto mb-20 animate-fadeInUp">
-          <div className="flex flex-wrap gap-5 bg-gray-800/70 backdrop-blur-lg border border-gray-700 rounded-2xl p-7 shadow-lg">
-            <div className="flex-1 min-w-[250px] relative">
-              <input
-                type="text"
-                placeholder="Search by car name..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-5 py-3 rounded-xl bg-gray-700/80 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
-              />
-              <FaSearch className="absolute right-5 top-1/2 -translate-y-1/2 text-yellow-400" />
-            </div>
+        {/* Search, Filter & Sort Bar */}
+        <div className="max-w-6xl mx-auto mb-16 grid grid-cols-1 md:grid-cols-4 gap-4 bg-gray-900/50 p-5 rounded-[30px] border border-gray-800 backdrop-blur-xl shadow-2xl">
+          <div className="md:col-span-2 relative">
+            <FaSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500" />
+            <input
+              type="text"
+              placeholder="Search car model..."
+              className="w-full bg-gray-800 border-none rounded-2xl py-3.5 pl-14 outline-none focus:ring-2 ring-amber-500 text-sm"
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
 
-            <div className="min-w-[200px]">
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-5 py-3 rounded-xl bg-gray-700/80 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
-              >
-                <option value="All">All Categories</option>
-                <option value="Electric">Electric</option>
-                <option value="Luxury">Luxury</option>
-                <option value="Sedan">Sedan</option>
-                <option value="SUV">SUV</option>
-                <option value="Hatchback">Hatchback</option>
-              </select>
-            </div>
+          <select
+            className="bg-gray-800 border-none rounded-2xl py-3.5 px-6 outline-none font-bold text-gray-300 text-sm"
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <option value="All">All Categories</option>
+            <option value="Electric">Electric</option>
+            <option value="Luxury">Luxury</option>
+            <option value="SUV">SUV</option>
+          </select>
 
-            <button
-              onClick={applyFilters}
-              className="px-7 py-3 bg-gradient-to-br from-yellow-400 to-pink-500 text-black font-semibold rounded-xl shadow-lg hover:translate-y-[-2px] transition-all"
+          <div className="relative">
+            <FaSortAmountDown className="absolute left-5 top-1/2 -translate-y-1/2 text-amber-500" />
+            <select
+              className="w-full bg-gray-800 border-none rounded-2xl py-3.5 pl-12 outline-none font-bold text-gray-300 text-sm appearance-none"
+              onChange={(e) => setSortOption(e.target.value)}
             >
-              Apply Filters
-            </button>
+              <option value="newest">Newest First</option>
+              <option value="priceLow">Price: Low to High</option>
+              <option value="priceHigh">Price: High to Low</option>
+            </select>
           </div>
         </div>
 
-        {/* Loading */}
-        {loading && (
-          <div className="text-center py-16">
-            <div className="w-12 h-12 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          </div>
-        )}
 
-        {/* Cars Grid */}
-        {!loading && filteredCars.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-16">
-            {filteredCars.map((car) => (
-              <div
-                key={car.id}
-                className="relative bg-gray-800/70 backdrop-blur-lg border border-gray-700 rounded-2xl overflow-hidden shadow-lg hover:-translate-y-2 transition-transform"
-              >
-                <div className="absolute top-5 left-5 px-3 py-1 bg-black/70 text-white text-xs font-semibold rounded-full backdrop-blur-sm">
-                  {car.category}
-                </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {loading ? (
+            [...Array(12)].map((_, i) => <SkeletonCard key={i} />)
+          ) : (
+            <AnimatePresence>
+              {filteredAndSortedCars.map((car) => (
+                <motion.div
+                  key={car.id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-gray-900/40 backdrop-blur-md rounded-3xl border border-gray-700 flex flex-col h-[370px] group hover:border-amber-500/50 transition-all overflow-hidden"
+                >
+    
+                  <div className="relative h-32 overflow-hidden">
+                    <img
+                      src={car.imageUrl}
+                      alt={car.name}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                    <div className="absolute top-2.5 left-3 bg-amber-500 text-slate-900 text-[8px] font-black px-2 py-0.5 rounded-md uppercase tracking-widest shadow-lg">
+                      {car.status}
+                    </div>
+                  </div>
 
-                <img
-                  src={car.imageUrl}
-                  alt={car.name}
-                  className="w-full h-56 object-cover transition-transform duration-700 hover:scale-105 cursor-pointer"
-                  onClick={() => viewDetails(car)}
-                />
-
-                <div className="p-6">
-                  <div className="flex justify-between mb-3">
-                    <div>
-                      <h3 className="text-white font-bold text-lg">
+                  {/* Content Section */}
+                  <div className="p-4 flex flex-col flex-1">
+                    <div className="flex justify-between items-start mb-0.5">
+                      <h3 className="text-sm font-bold text-white uppercase tracking-tighter truncate w-[75%]">
                         {car.name}
                       </h3>
-                      <p className="text-gray-400 text-sm">{car.model}</p>
+                      <div className="flex items-center gap-1 text-amber-500 text-[9px] font-bold">
+                        <FaStar /> {car.rating}
+                      </div>
                     </div>
-                    <div className="text-yellow-400 font-bold text-lg">
-                      ${car.price}
-                      <span className="text-gray-400 text-sm">/day</span>
+                    <p className="text-gray-500 text-[9px] leading-relaxed line-clamp-1 mb-2.5">
+                      {car.model} | {car.category}
+                    </p>
+
+                    {/* Meta Info Section (price, date, location) */}
+                    <div className="space-y-1 mb-3.5 bg-gray-950/50 p-2.5 rounded-xl border border-gray-800/50">
+                      <div className="flex items-center gap-2 text-[8px] text-gray-400 font-bold uppercase tracking-widest">
+                        <FaMapMarkerAlt className="text-amber-500" />{" "}
+                        {car.location}
+                      </div>
+                      <div className="flex items-center gap-2 text-[8px] text-gray-400 font-bold uppercase tracking-widest">
+                        <FaRegCalendarAlt className="text-amber-500" />{" "}
+                        {car.date}
+                      </div>
+                    </div>
+
+                    {/* Footer Utility */}
+                    <div className="mt-auto flex justify-between items-center pt-2.5 border-t border-gray-800">
+                      <div>
+                        <p className="text-[7px] text-gray-600 font-black uppercase tracking-widest">
+                          Daily Rate
+                        </p>
+                        <p className="text-sm font-black text-white italic">
+                          ${car.price}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => viewDetails(car)}
+                        className="bg-linear-to-r from-amber-400 to-rose-500 text-gray-900 px-3.5 py-1.5 rounded-lg font-black uppercase tracking-widest text-[8px] shadow-lg active:scale-95 transition-all"
+                      >
+                        View Details
+                      </button>
                     </div>
                   </div>
-
-                  <div className="mb-4">
-                    <div className="flex items-center text-gray-300 text-sm mb-1">
-                      <FaUser className="mr-2 text-yellow-400" /> Provider:{" "}
-                      {car.providerName}
-                    </div>
-                    <div className="flex items-center text-gray-300 text-sm">
-                      <FaMapMarkerAlt className="mr-2 text-yellow-400" />{" "}
-                      Location: {car.location}
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => viewDetails(car)}
-                    className="w-full py-3 rounded-xl font-semibold text-sm uppercase tracking-wide bg-gradient-to-br from-yellow-400 to-pink-500 text-black shadow-lg hover:-translate-y-1 transition-all"
-                  >
-                    View Details
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Empty State */}
-        {!loading && filteredCars.length === 0 && (
-          <div className="text-center p-16 bg-gray-800/70 backdrop-blur-lg border border-gray-700 rounded-2xl max-w-xl mx-auto">
-            <div className="text-yellow-400 text-4xl mb-4">
-              <FaMapMarkerAlt className="mx-auto" />
-            </div>
-            <h2 className="text-white text-2xl font-bold mb-3">
-              No Cars Found
-            </h2>
-            <p className="text-gray-400 mb-5">
-              We couldn't find any vehicles matching your criteria. Try
-              adjusting your search or filters!
-            </p>
-            <button
-              onClick={clearFilters}
-              className="px-7 py-3 bg-gradient-to-br from-yellow-400 to-pink-500 text-black font-semibold rounded-xl shadow-lg hover:-translate-y-1 transition-all"
-            >
-              Clear Filters
-            </button>
-          </div>
-        )}
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          )}
+        </div>
       </div>
     </div>
   );
